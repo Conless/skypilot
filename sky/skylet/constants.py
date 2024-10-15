@@ -39,7 +39,7 @@ SKY_GET_PYTHON_PATH_CMD = (f'[ -s {SKY_PYTHON_PATH_FILE} ] && '
                            'which python3')
 # Python executable, e.g., /opt/conda/bin/python3
 SKY_PYTHON_CMD = f'$({SKY_GET_PYTHON_PATH_CMD})'
-SKY_PIP_CMD = f'{SKY_PYTHON_CMD} -m pip'
+SKY_PIP_CMD = f'$HOME/.cargo/bin/uv -m pip'
 # Ray executable, e.g., /opt/conda/bin/ray
 # We need to add SKY_PYTHON_CMD before ray executable because:
 # The ray executable is a python script with a header like:
@@ -157,6 +157,20 @@ CONDA_INSTALLATION_COMMANDS = (
     f'echo "$(echo {SKY_REMOTE_PYTHON_ENV})/bin/python" > {SKY_PYTHON_PATH_FILE};'
 )
 
+UV_INSTALLATION_COMMANDS = (
+    'which uv > /dev/null 2>&1 || '
+    '{ curl -LsSf https://astral.sh/uv/install.sh | sh; };'
+    # If Python version is larger then equal to 3.12, install Python 3.10 with uv.
+    '[[ $(python3 --version | cut -d " " -f 2 | cut -d "." -f 2) -ge 12 ]] && '
+    'echo "Installing Python 3.10 with uv" && '
+    '$HOME/.cargo/uv install python3.10;'
+    # Create a uv venv for SkyPilot dependencies.
+    f'[ -d {SKY_REMOTE_PYTHON_ENV} ] || '
+    f'{{ $HOME/.cargo/uv venv {SKY_REMOTE_PYTHON_ENV} && '
+    f'source {SKY_REMOTE_PYTHON_ENV}/bin/activate && '
+    f'echo "$(echo {SKY_REMOTE_PYTHON_ENV})/bin/python" > {SKY_PYTHON_PATH_FILE}; }};'
+)
+
 _sky_version = str(version.parse(sky.__version__))
 RAY_STATUS = f'RAY_ADDRESS=127.0.0.1:{SKY_REMOTE_RAY_PORT} {SKY_RAY_CMD} status'
 # Install ray and skypilot on the remote cluster if they are not already
@@ -189,7 +203,7 @@ RAY_SKYPILOT_INSTALLATION_COMMANDS = (
     f'{SKY_PIP_CMD} list | grep "ray " | '
     f'grep {SKY_REMOTE_RAY_VERSION} 2>&1 > /dev/null '
     f'|| {RAY_STATUS} || '
-    f'{SKY_PIP_CMD} install --exists-action w -U ray[default]=={SKY_REMOTE_RAY_VERSION}; '  # pylint: disable=line-too-long
+    f'{SKY_PIP_CMD} install -U ray[default]=={SKY_REMOTE_RAY_VERSION}; '  # pylint: disable=line-too-long
     # In some envs, e.g. pip does not have permission to write under /opt/conda
     # ray package will be installed under ~/.local/bin. If the user's PATH does
     # not include ~/.local/bin (the pip install will have the output: `WARNING:

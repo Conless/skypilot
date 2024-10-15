@@ -122,15 +122,6 @@ available_node_types:
           - path: /etc/apt/apt.conf.d/10cloudinit-disable
             content: |
               APT::Periodic::Enable "0";
-          - path: /etc/apt/apt.conf.d/52unattended-upgrades-local
-            content: |
-              Unattended-Upgrade::DevRelease "false";
-              Unattended-Upgrade::Allowed-Origins {};
-        bootcmd:
-          - systemctl stop apt-daily.timer apt-daily-upgrade.timer unattended-upgrades.service
-          - systemctl disable apt-daily.timer apt-daily-upgrade.timer unattended-upgrades.service
-          - systemctl mask apt-daily.service apt-daily-upgrade.service unattended-upgrades.service
-          - systemctl daemon-reload
       TagSpecifications:
         - ResourceType: instance
           Tags:
@@ -140,9 +131,6 @@ available_node_types:
             - Key: {{ label_key }}
               Value: {{ label_value|tojson }}
             {%- endfor %}
-      # Use IDMSv2
-      MetadataOptions:
-        HttpTokens: required 
 
 head_node_type: ray.head.default
 
@@ -178,7 +166,6 @@ setup_commands:
     {{ initial_setup_command }}
     {%- endfor %}
     {{ conda_installation_commands }}
-    conda config --remove channels "https://aws-ml-conda-ec2.s3.us-west-2.amazonaws.com" || true;
     {{ ray_skypilot_installation_commands }}
     sudo bash -c 'rm -rf /etc/security/limits.d; echo "* soft nofile 1048576" >> /etc/security/limits.conf; echo "* hard nofile 1048576" >> /etc/security/limits.conf';
     {%- if docker_image is none %}

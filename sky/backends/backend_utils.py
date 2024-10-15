@@ -803,8 +803,7 @@ def write_cluster_config(
                 # We should not use `.format`, as it contains '{}' as the bash
                 # syntax.
                 'conda_installation_commands':
-                    constants.CONDA_INSTALLATION_COMMANDS.replace(
-                        '{conda_auto_activate}', conda_auto_activate),
+                    constants.UV_INSTALLATION_COMMANDS,
                 'ray_skypilot_installation_commands':
                     (constants.RAY_SKYPILOT_INSTALLATION_COMMANDS.replace(
                         '{sky_wheel_hash}',

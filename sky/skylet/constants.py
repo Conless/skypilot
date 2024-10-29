@@ -39,7 +39,7 @@ SKY_GET_PYTHON_PATH_CMD = (f'[ -s {SKY_PYTHON_PATH_FILE} ] && '
                            'which python3')
 # Python executable, e.g., /opt/conda/bin/python3
 SKY_PYTHON_CMD = f'$({SKY_GET_PYTHON_PATH_CMD})'
-SKY_PIP_CMD = f'$HOME/.cargo/bin/uv -m pip'
+SKY_PIP_CMD = f'$HOME/.cargo/bin/uv pip'
 # Ray executable, e.g., /opt/conda/bin/ray
 # We need to add SKY_PYTHON_CMD before ray executable because:
 # The ray executable is a python script with a header like:
@@ -163,10 +163,10 @@ UV_INSTALLATION_COMMANDS = (
     # If Python version is larger then equal to 3.12, install Python 3.10 with uv.
     '[[ $(python3 --version | cut -d " " -f 2 | cut -d "." -f 2) -ge 12 ]] && '
     'echo "Installing Python 3.10 with uv" && '
-    '$HOME/.cargo/uv install python3.10;'
+    '$HOME/.cargo/bin/uv python install python3.10;'
     # Create a uv venv for SkyPilot dependencies.
     f'[ -d {SKY_REMOTE_PYTHON_ENV} ] || '
-    f'{{ $HOME/.cargo/uv venv {SKY_REMOTE_PYTHON_ENV} && '
+    f'{{ $HOME/.cargo/bin/uv venv {SKY_REMOTE_PYTHON_ENV} && '
     f'source {SKY_REMOTE_PYTHON_ENV}/bin/activate && '
     f'echo "$(echo {SKY_REMOTE_PYTHON_ENV})/bin/python" > {SKY_PYTHON_PATH_FILE}; }};'
 )

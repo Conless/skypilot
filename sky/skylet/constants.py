@@ -167,8 +167,8 @@ UV_INSTALLATION_COMMANDS = (
     # Create a uv venv for SkyPilot dependencies.
     f'[ -d {SKY_REMOTE_PYTHON_ENV} ] || '
     f'{{ $HOME/.cargo/bin/uv venv {SKY_REMOTE_PYTHON_ENV} && '
-    f'source {SKY_REMOTE_PYTHON_ENV}/bin/activate && '
-    f'echo "$(echo {SKY_REMOTE_PYTHON_ENV})/bin/python" > {SKY_PYTHON_PATH_FILE}; }};'
+    f'source {SKY_REMOTE_PYTHON_ENV}/bin/activate; }}; '
+    f'echo "$(echo {SKY_REMOTE_PYTHON_ENV})/bin/python" > {SKY_PYTHON_PATH_FILE};'
 )
 
 _sky_version = str(version.parse(sky.__version__))
@@ -220,7 +220,7 @@ RAY_SKYPILOT_INSTALLATION_COMMANDS = (
     # END ray package check and installation
     f'{{ {SKY_PIP_CMD} list | grep "skypilot " && '
     '[ "$(cat ~/.sky/wheels/current_sky_wheel_hash)" == "{sky_wheel_hash}" ]; } || '  # pylint: disable=line-too-long
-    f'{{ {SKY_PIP_CMD} uninstall skypilot -y; '
+    f'{{ {SKY_PIP_CMD} uninstall skypilot; '
     f'{SKY_PIP_CMD} install "$(echo ~/.sky/wheels/{{sky_wheel_hash}}/'
     f'skypilot-{_sky_version}*.whl)[{{cloud}}, remote]" && '
     'echo "{sky_wheel_hash}" > ~/.sky/wheels/current_sky_wheel_hash || '
